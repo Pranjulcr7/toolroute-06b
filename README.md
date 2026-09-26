@@ -70,7 +70,7 @@ toolroute e2e --model router --instances 3 --out results/e2e-router.json
 python scripts/cpu_pipeline_smoke.py                   # needs the [train] extra; tiny random model, pipeline check only
 ```
 
-GPU (Colab T4 or better): open `notebooks/train_eval_colab.ipynb`. It pins the base revision, runs a smoke
+GPU (Colab T4 or better): open [`notebooks/train_eval_colab.ipynb` in Colab](https://colab.research.google.com/github/Pranjulcr7/toolroute-06b/blob/main/notebooks/train_eval_colab.ipynb). It pins the base revision, runs a smoke
 job first, estimates the full run time, trains (LoRA r=16, all linear layers, 2 epochs, lr 2e-4 cosine, effective
 batch 16, max length 2048, fp16 on T4 and bf16 where supported, QLoRA off unless memory requires it), selects the checkpoint by
 lowest validation loss, and evaluates base and adapter once on test with identical greedy settings.
