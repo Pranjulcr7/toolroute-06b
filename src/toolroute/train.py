@@ -97,13 +97,15 @@ def run(cfg: TrainConfig, model=None, tokenizer=None) -> dict[str, Any]:
     if tokenizer is None:
         tokenizer = AutoTokenizer.from_pretrained(cfg.base_model, revision=cfg.revision)
     if model is None:
-        kwargs: dict[str, Any] = {"revision": cfg.revision,
-                                  "dtype": torch.bfloat16 if bf16 else torch.float16 if fp16 else torch.float32}
+        # bf16 GPUs: bf16 weights. fp16-only GPUs (e.g. T4): fp32 master weights + fp16 autocast, which avoids
+        # GradScaler "unscale FP16 gradients" failures; 0.6B params in fp32 is ~2.4 GB.
+        kwargs: dict[str, Any] = {"revision": cfg.revision, "dtype": torch.bfloat16 if bf16 else torch.float32}
         if cfg.qlora:
             from transformers import BitsAndBytesConfig
 
             kwargs["quantization_config"] = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4",
-                                                               bnb_4bit_compute_dtype=kwargs["dtype"])
+                                                               bnb_4bit_compute_dtype=torch.bfloat16 if bf16
+                                                               else torch.float16)
         model = AutoModelForCausalLM.from_pretrained(cfg.base_model, **kwargs)
 
     args = SFTConfig(
