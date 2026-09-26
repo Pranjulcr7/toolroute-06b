@@ -1,0 +1,43 @@
+[project]
+name = "toolroute-06b"
+version = "0.1.0"
+description = "Small-model next-tool-call routing (tool choice, arguments, clarification, refusal) on fictional incident scenarios."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+authors = [{ name = "Pranjul Gupta" }]
+dependencies = [
+  # Simulator and tool schemas, pinned to an exact commit (shared package, not a copy).
+  "agent-reliability-lab @ git+https://github.com/Pranjulcr7/agent-reliability-lab@4b8cef229bfd5d9db801f1483af164be4749636f",
+]
+
+[project.optional-dependencies]
+train = [
+  "torch>=2.4",
+  "transformers==5.17.0",
+  "trl==1.14.0",
+  "peft==0.21.0",
+  "datasets==5.0.1",
+  "accelerate==1.15.0",
+]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[project.scripts]
+toolroute = "toolroute.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/toolroute"]
+
+[tool.ruff]
+line-length = 130
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "B", "UP", "I"]

@@ -1,0 +1,19 @@
+name: ci
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv venv && uv pip install -e ".[dev]"
+      - run: uv run ruff check src tests scripts
+      - run: uv run pytest -q
+      # Regenerate the dataset and check it matches the committed hashes (determinism + no silent drift).
+      - run: |
+          uv run toolroute generate --out /tmp/v1
+          for s in train val test; do cmp /tmp/v1/$s.jsonl data/v1/$s.jsonl; done
